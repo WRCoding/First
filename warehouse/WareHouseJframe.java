@@ -28,7 +28,7 @@ public class WareHouseJframe extends JFrame implements ActionListener{
 	 * 
 	 */
 	public WareHouseJframe(){
-		JFrame jf=new JFrame("库存管理");
+		JFrame jf=new JFrame("商品库存管理");
 		Container c=jf.getContentPane();
 		GridBagLayout grid=new GridBagLayout();
 		jp=new JPanel();
