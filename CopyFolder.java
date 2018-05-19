@@ -29,7 +29,7 @@ public class CopyFolder {
 					System.out.println(newfile.getPath()+File.separator+listFiles[i].getName());*/
 					
 					
-					FileReader fr=new FileReader(listFiles[i]);
+					/*FileReader fr=new FileReader(listFiles[i]);
 					FileWriter fw=new FileWriter(new File(newfile.getPath()+File.separator+listFiles[i].getName()));//File.separator是用来分隔同一个路径字符串中的目录的
 					char[] ch=new char[(int) listFiles[i].length()];
 					fr.read(ch);
@@ -37,9 +37,9 @@ public class CopyFolder {
 					//System.out.println(str);
 					fw.write(str);
 					fr.close();
-					fw.close();
+					fw.close();*/
 					
-				/*	FileInputStream fi=new FileInputStream(listFiles[i]);
+					FileInputStream fi=new FileInputStream(listFiles[i]);
 					FileOutputStream fo=new FileOutputStream(new File(newfile.getPath()+File.separator+
 							listFiles[i].getName()));
 					int count=fi.available();
@@ -48,7 +48,7 @@ public class CopyFolder {
 						fo.write(data);
 					}
 					fi.close();
-					fo.close();*/
+					fo.close();
 				} catch (Exception e) {
 					e.printStackTrace();
 					// TODO: handle exception
