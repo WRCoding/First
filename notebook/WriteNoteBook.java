@@ -11,13 +11,13 @@ public class WriteNoteBook {
 		try {
 			FileWriter fw=new FileWriter(file,true);
 			Date time=new Date();
-/*			String timestr=String.format("%tF",time);
-			String datestr=String.format("%tT", time);*/
-			String timerstr=time.toString();
+			String timestr=String.format("%tF",time);
+			String datestr=String.format("%tT", time);
+			//String timerstr=time.toString();
 			fw.write(str);
 			fw.write("\r\n");
-			fw.write(timerstr);
-			//fw.write(timestr+" "+datestr);
+			//fw.write(timerstr);
+			fw.write(timestr+" "+datestr);
 			fw.write("\r\n");
 			fw.write("------------------------");
 			fw.write("\r\n");
