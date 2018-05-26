@@ -23,7 +23,9 @@ public class WareHouseJframe extends JFrame implements ActionListener{
 	private JTextArea showja;
 	private JButton addjb,deletjb,showjb;
 	private JScrollPane js;
-	private JPanel jp,jp2;
+	private JPanel jp;
+	private JTable table;
+	private DefaultTableModel model;
 	/**
 	 * 
 	 */
@@ -32,8 +34,7 @@ public class WareHouseJframe extends JFrame implements ActionListener{
 		Container c=jf.getContentPane();
 		GridBagLayout grid=new GridBagLayout();
 		jp=new JPanel();
-		jp2=new JPanel();
-		jp2.setLayout(grid);
+
 		jp.setLayout(grid);
 		c.setLayout(new BorderLayout());
 		jf.setDefaultCloseOperation(jf.EXIT_ON_CLOSE);
@@ -112,23 +113,23 @@ public class WareHouseJframe extends JFrame implements ActionListener{
 		jp.add(deletjt);
 		jp.add(deletjb);
 		
-		
-		gr.gridx=2;
-		gr.gridy=1;
-		showja=new JTextArea(10,30);
-		js=new JScrollPane(showja);
-		grid.setConstraints(js, gr);
-		
-		gr.gridx=2;
-		gr.gridy=5;
+		gr.gridx=1;
+		gr.gridy=11;
 		showjb=new JButton("查看商品");
 		grid.setConstraints(showjb, gr);
 		showjb.addActionListener(this);
-		jp2.add(js);
-		jp2.add(showjb);
+		jp.add(showjb);
+		
+
+		String[] col={"商品库存","商品价格","商品名称","商品编号"};
+		model=new DefaultTableModel(col, 0);
+		table=new JTable(model);
+		table.setRowSorter(new TableRowSorter<>(model));
+		js=new JScrollPane(table);
+		
 		
 		c.add(jp,BorderLayout.WEST);
-		c.add(jp2,BorderLayout.EAST);
+		c.add(js,BorderLayout.EAST);
 	}
 	public void actionPerformed(ActionEvent e) {
 		// TODO 自动生成的方法存根
@@ -160,11 +161,10 @@ public class WareHouseJframe extends JFrame implements ActionListener{
 			ArrayList<Merchandise>list=showmer.showMerchandise();
 			Merchandise mer=new Merchandise();
 			for(int i=0;i<list.size();i++){
-				mer=list.get(i);
-				stb.append("商品编号："+mer.getId()+""+" 商品名称："+mer.getName()+""+" 商品价格："+mer.getPrice()+
-						""+" 商品库存："+mer.getStock()+" "+"\n");
+				String[]row={String.valueOf(mer.getId()),mer.getName(),
+						String.valueOf(mer.getPrice()),String.valueOf(mer.getStock())};
+				model.addRow(row);
 			}
-			showja.setText(stb.toString());
 		}
 		if(e.getSource()==deletjb){
 			if(deletjt.getText().equals("")){
