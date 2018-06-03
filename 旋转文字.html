@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>文字旋转</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<script type="text/javascript">
+			function Circle(text,interval){
+				this.angle=Math.PI/180*5;//每次转到的角度
+				this.count=Math.PI*2/this.angle;
+				this.current=0;//初始角度
+				this.curX=0;//X坐标
+				this.curY=0;//Y坐标
+				this.interval=interval;
+				
+				
+				/**
+				 * 成员方法
+				 */
+ 				this.initCircle=initCircle;
+				this.updateAngle=updateAngle;
+				this.updatePosition=updatePosition;
+				this.circleText=circleText;
+				this.showCircle=showCircle; 
+				
+				var self=this;
+				document.onmousemove=function(e){self.updatePosition(e)};
+				this.initCircle(text.length);
+				this.showCircle(text);
+			}
+			//r为圆形半径,cx,cy为圆心坐标
+			function circleText(cx,cy,r,text,angle){
+				var per=2*Math.PI/text.length;
+				var len=text.length;
+				
+				for(var i=0;i<len;i++){
+					/**
+					 * 计算出每个字的横纵坐标
+					 */
+					var x=r*Math.cos(per*i+angle)+cx;
+					var y=r*Math.sin(per*i+angle)+cy;
+					/**
+					 * 通过getElementById获得指定id的标签，然后设置标签的位置，用innerhtml给标记中
+					 加入text.charAt(i)每个字
+					 */
+					var element=document.getElementById('ct'+i);
+					element.style.position='absolute';
+					element.style.top=y+"px";
+					element.style.left=x+"px";
+					element.style.color='blue';
+					element.innerHTML=text.charAt(i);//向div中插入text.charAt(i)，innerHtml可获得标签内的内容或者插入内容
+				}
+			}
+			function initCircle(len){
+				for(var i=0;i<len;i++){
+					var div=document.createElement('div');//制作div标签
+					div.id='ct'+i;
+					document.documentElement.appendChild(div);//document.documentElement是获取根节点（HTML节点），appendChild在末尾添加新的节点，节点为参数
+				}
+			}
+			function updateAngle(){
+				this.current+=this.angle;
+				this.current=(this.current>=Math.PI*2)?0:this.current;
+			}
+			function updatePosition(e){
+				var theEvent=window.event;
+				this.curX=theEvent.clientX;
+				this.curY=theEvent.clientY;
+			}
+			function showCircle(text){
+				var r=text.length*7;
+				this.circleText(this.curX,this.curY,r,text,this.current);
+				this.updateAngle();
+				
+				var self=this;
+				//递归调用绘制文字圆圈
+				setTimeout(function(){self.showCircle(text);},this.interval);
+			}
+		</script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			c=new Circle("天津工业大学",20);
+		</script>
+	</body>
+</html>
