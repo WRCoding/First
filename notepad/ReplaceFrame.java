@@ -44,15 +44,46 @@ public class ReplaceFrame extends JFrame{
 				// TODO 自动生成的方法存根
 				String str=NotePadJframe.noteja.getText();
 				String strr=findtext.getText();
-				System.out.println(str.indexOf(strr,count));
-				count=str.indexOf(strr,count)+1;
+				/**
+				 * 获得要查找字符的位置
+				 */
+				int selectionStart=str.indexOf(strr,count);
+				int selectionEnd=str.indexOf(strr,count)+1;
+				count=str.indexOf(strr,count)+1;//记录下一个查找的起始位置，避免一直找第一个
+				if(count>0)
+				//System.out.println(str.charAt(count-1));
+				NotePadJframe.noteja.select(selectionStart, selectionEnd);//选中要查找的字符
+				NotePadJframe.noteja.setSelectionColor(Color.BLUE);//将选中字符的背景选为蓝色
 				if(count==0){
-					JOptionPane.showMessageDialog(jf, "没有查找到"+strr+"字","记事本",JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(jf, "没有查找到  "+strr+" 字","记事本",JOptionPane.WARNING_MESSAGE);
 				}
 				
 			}
 		});
 		replaceButton=new JButton("替换");
+		replaceButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO 自动生成的方法存根
+				String str=NotePadJframe.noteja.getText();
+				String strr=findtext.getText();//获得要替换的字符位置
+				/**
+				 * 获得要替换字符的位置
+				 */
+				int selectionStart=str.indexOf(strr,count);
+				int selectionEnd=str.indexOf(strr,count)+1;
+				count=str.indexOf(strr,count)+1;
+				String s=replacetext.getText();//获得要替换成的字符
+				if(count>0)
+				NotePadJframe.noteja.select(selectionStart, selectionEnd);
+				NotePadJframe.noteja.setSelectionColor(Color.BLUE);
+				NotePadJframe.noteja.replaceRange(s, selectionStart, selectionEnd);//替换字符
+				if(count==0){
+					JOptionPane.showMessageDialog(jf, "没有查找到  "+strr+" 字","记事本",JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
 		cancelButton=new JButton("取消");
 		cancelButton.addActionListener(new ActionListener() {
 			
