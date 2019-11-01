@@ -49,7 +49,7 @@ public class CalenderNoteFrame extends JFrame implements ActionListener{
     private	DefaultTableModel model;
     private JTable table;
     private CardLayout card;
-    private SimpleDateFormat currentDate = new SimpleDateFormat("yyyy年MM月dd日");
+    private SimpleDateFormat currentDate = new SimpleDateFormat("yyyy年MM月dd日");//获得当前的日期
     public CalenderNoteFrame(){
         jf=new JFrame("日历记事本");
         c=jf.getContentPane();
