@@ -1,5 +1,3 @@
-package calendernote;
-
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -17,11 +15,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -37,418 +31,393 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 public class CalenderNoteFrame extends JFrame implements ActionListener{
-	private JFrame jf;
-	private Container c;
-	private JButton b1,b2,b3,b4,thisdayButton,notelistButoon,saveButton,deleteButton;
-	private JComboBox yearbox,monthbox;
-	private JButton[] weekButton=new JButton[7];//ĞÇÆÚÊı×é
-	private JButton[] daysButton=new JButton[42];//ÔÂ·İÊı×é
-	private String years[]={"2015","2016","2017","2018","2019","2020","2021"};;
-	private String months[]={"1","2","3","4","5","6","7","8","9","10","11","12"};
-	private JPanel leftpanel,rightpanel;
-	private JPanel leftCenter,cardpanel;
-	private String year,month;//¼ÇÂ¼Äê·İºÍÔÂ·İ
-	private  int recordYear,recordMonth,listCount=0,cancel=1;//¼ÇÂ¼Äê·İ¿ò/ÔÂ·İ¿òµ±Ç°Ñ¡ÏîµÄÏÂ±ê,listCount¼ÇÂ¼Ò»¹²ÓĞ¶àÉÙÌõ¼ÇÊÂ
-	private boolean flag=false;//flagÅĞ¶ÏÃæ°åÊÇ·ñÇĞ»»¹ı,cancelÈÃ±í¸ñ²»»áÒòÎªÃ¿´Îµã»÷°´Å¥¾ÍÖØ¸´Ôö¼ÓĞĞÊı
-	private JLabel timeLabel,dateLabel;
-	private JTextArea noteja;//¼ÇÊÂÎÄ±¾Óò
+    private JFrame jf;
+    private Container c;
+    private JButton downYear,upYear,downMonth,upMonth,thisdayButton,notelistButoon,saveButton,deleteButton;
+    private JComboBox yearbox,monthbox;
+    private JButton[] weekButton=new JButton[7];//æ˜ŸæœŸæ•°ç»„
+    private JButton[] daysButton=new JButton[42];//æ¯æœˆå¤©æ•°æ•°ç»„
+    private String years[]={"2015","2016","2017","2018","2019","2020","2021"};;
+    private String months[]={"1","2","3","4","5","6","7","8","9","10","11","12"};
+    private JPanel leftpanel,rightpanel;
+    private JPanel leftCenter,cardpanel;
+    private String year,month;//è®°å½•å¹´ä»½å’Œæœˆä»½
+    private  int recordYear,recordMonth,listCount=0,cancel=1;//è®°å½•å¹´ä»½æ¡†/æœˆä»½æ¡†å½“å‰é€‰é¡¹çš„ä¸‹æ ‡,listCountè®°å½•ä¸€å…±æœ‰å¤šå°‘æ¡è®°äº‹
+    private boolean flag=false;//flagåˆ¤æ–­é¢æ¿æ˜¯å¦åˆ‡æ¢è¿‡,cancelè®©è¡¨æ ¼ä¸ä¼šå› ä¸ºæ¯æ¬¡ç‚¹å‡»æŒ‰é’®å°±é‡å¤å¢åŠ è¡Œæ•°
+    private JLabel timeLabel,dateLabel;
+    private JTextArea noteTextArea;//è®°äº‹æ–‡æœ¬åŸŸ
     private	DefaultTableModel model;
     private JTable table;
     private CardLayout card;
-    private ArrayList<String> arraylist=new ArrayList<>();
-	public CalenderNoteFrame(){
-		 jf=new JFrame("ÈÕÀú¼ÇÊÂ±¾");
-		 c=jf.getContentPane();
-		c.setLayout(new BorderLayout());
-		jf.setSize(700, 700);
-		jf.setVisible(true);
-		jf.setDefaultCloseOperation(jf.EXIT_ON_CLOSE);
-		/**
-		 * ÖÆ×÷³öÈÕÀú±í
-		 */
-		leftpanel=new JPanel(new BorderLayout());
-		leftCenter=new JPanel();
-		leftCenter.setLayout(new GridLayout(7, 7));
-		
-		/**
-		 * Ìí¼ÓĞÇÆÚ°´Å¥Êı×éºÍÌìÊı°´Å¥Êı×é
-		 */
-		String[] week={"ĞÇÆÚÈÕ","ĞÇÆÚÒ»","ĞÇÆÚ¶ş","ĞÇÆÚÈı","ĞÇÆÚËÄ","ĞÇÆÚÎå","ĞÇÆÚÁù"};
-		Font font=new Font("ËÎÌå",Font.PLAIN, 15);
-		for(int i=0;i<week.length;i++){
-			weekButton[i]=new JButton(week[i]);
-			weekButton[i].setFont(font);
-			//weekButton[i].setEnabled(false);
-			leftCenter.add(weekButton[i]);
-		}
-		for( int i=0;i<42;i++){
-			daysButton[i]=new JButton("");
-			leftCenter.add(daysButton[i]);
-		}
-			
-		
-		
-		/*
-		 * ÖÆ×÷±í¸ñ
-		 */
-		String[] col={"ID","ÈÕÆÚ","¼ÇÊÂ"};
-		model=new DefaultTableModel(col, 0);
-		table=new JTable(model);
-		table.setRowSorter(new TableRowSorter<>(model));
-		JScrollPane js=new JScrollPane(table);
-		/**
-		 * Ê¹ÓÃ¿¨Æ¬²¼¾Ö£¬Ê¹µÃ²»Í¬Ãæ°å¿ÉÒÔ½øĞĞÀ´»ØÇĞ»»
-		 */
-		card=new CardLayout();
-		cardpanel=new JPanel(card);
-		cardpanel.add(leftCenter,"left");
-		cardpanel.add(js,"js");
-		leftpanel.add(cardpanel, BorderLayout.CENTER);//½«¿¨Æ¬²¼¾ÖÆ÷Ìí¼Óµ½ÈİÆ÷ÖĞ
-		/**
-		 * Ìí¼Ó×é¼ş
-		 */
-		yearbox=new JComboBox<>(years);
-		yearbox.setEditable(false);
-		yearbox.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-				//year=(String) yearbox.getSelectedItem();//»ñµÃµã»÷µÄÄê·İ
-				CalclulateDate();
-			}
-		});
-		//System.out.println(yearbox.getSelectedItem());
-		monthbox=new JComboBox<>(months);
-		monthbox.setEditable(false);
-		//System.out.println(monthbox.getSelectedItem());
-		monthbox.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-				CalclulateDate();
-			}
-		});
-		/**
-		 * Ê¹µÃ³ÌĞòÒ»¿ªÊ¼¾Í´¦ÓÚµ±Ç°ÈÕÆÚµÄÎ»ÖÃ
-		 */
-		Calendar cc=Calendar.getInstance();
-		cc.set(cc.get(Calendar.YEAR), cc.get(Calendar.MONTH), 1);
-		int a=cc.get(Calendar.DAY_OF_WEEK)-1;
-		for(int i=1;i<=calclulate(cc.get(Calendar.YEAR), cc.get(Calendar.MONTH)+1);i++){
-			daysButton[a].setText(""+i+"");
-			//daysButton[a].addMouseListener(new MyAdapter(daysButton[a]));
-			
-			a++;
-		}
-		for(int i=0;i<years.length;i++){//²éÕÒ³öµ±Ç°Äê·İ¶ÔÓ¦µÄÊı×éÏÂ±ê
-			String temp=String.valueOf(cc.get(Calendar.YEAR));
-			if(years[i].equals(temp)){
-				yearbox.setSelectedIndex(i);
-			}
-		}		
-		monthbox.setSelectedIndex(cc.get(Calendar.MONTH));
-		
-		
-		b1=new JButton("<");
-		b1.addActionListener(this);
-		b2=new JButton(">");
-		b2.addActionListener(this);
-		b3=new JButton("<");
-		b3.addActionListener(this);
-		b4=new JButton(">");
-		b4.addActionListener(this);
-		thisdayButton=new JButton("µ±Ç°ÈÕÆÚ");
-		thisdayButton.addActionListener(this);
-		notelistButoon=new JButton("¼ÇÊÂÁĞ±í");
-		notelistButoon.addActionListener(this);
-		
-		JPanel jp=new JPanel(new FlowLayout());
-		jp.add(b1);jp.add(yearbox);jp.add(b2);
-		jp.add(b3);jp.add(monthbox);jp.add(b4);
-		jp.add(thisdayButton);jp.add(notelistButoon);
-		leftpanel.add(jp, BorderLayout.NORTH);
-		c.add(leftpanel,BorderLayout.WEST);
-			
-		timeLabel=new JLabel();
-		Font font2=new Font("ºÚÌå", Font.BOLD, 16);
-		timeLabel.setFont(font2);
-		Timer time=new Timer();
-		TimerTask task=new TimerTask() {//ÉèÖÃ¶¨Ê±Æ÷£¬ÔÚ½çÃæÖĞÏÔÊ¾Ê±¼ä
-			
-			@Override
-			public void run() {
-				// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-				long timemillis = System.currentTimeMillis();   
-                //×ª»»ÈÕÆÚÏÔÊ¾¸ñÊ½   
-               SimpleDateFormat df = new SimpleDateFormat("yyyyÄêMMÔÂddÈÕ      HH:mm:ss  E");  	
-               timeLabel.setText("            µ±Ç°Ê±¼ä£º    "+df.format(new Date(timemillis)));
-			}
-		};
-		time.schedule(task, 1000,1000);//Ã¿¹ıÒ»ÃëÖ´ĞĞÒ»´Î
-		rightpanel=new JPanel(new BorderLayout());
-		rightpanel.add(timeLabel,BorderLayout.NORTH);
-		
-		JPanel leftcenter=new JPanel(new BorderLayout());
-		dateLabel=new JLabel(" ",JLabel.CENTER);
-		dateLabel.setFont(font2);
-		
-		noteja=new JTextArea(100, 100);
-		
-		saveButton=new JButton("±£´æ");
-		saveButton.addActionListener(this);
-		deleteButton=new JButton("É¾³ı");
-		deleteButton.addActionListener(this);
-		JPanel buttonpanel=new JPanel(new FlowLayout());
-		buttonpanel.add(saveButton);buttonpanel.add(deleteButton);
-		leftcenter.add(noteja, BorderLayout.CENTER);
-		leftcenter.add(dateLabel, BorderLayout.NORTH);
-		rightpanel.add(leftcenter, BorderLayout.CENTER);
-		rightpanel.add(buttonpanel, BorderLayout.SOUTH);
-		c.add(rightpanel);
-	}
-	public int calclulate(int year,int month){//¼ÆËãÔÂ·İµÄÌìÊıÒÔ¼°ÊÇ·ñÊÇÈòÄê
-		boolean flag=false;
-		int day=0;
-		if((year%4==0&&year%100!=0)||year%400==0)
-			flag=true;
-		if(flag&&month==2){
-			day=29;
-		}else{
-			day=28;
-		}
-		if(month==1||month==3||month==5||month==5||month==7||month==8||month==10||month==12){
-			day=31;
-		}else if(month==4||month==6||month==9||month==11){
-			day=30;
-		}
-		return day;		
-	}
-	
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource()==b1){
-			recordYear--;			
-			if(recordYear>=0){
-				yearbox.setSelectedIndex(recordYear);//Í¨¹ırecordYear¼õÒ»£¬ÈÃÄê·İ¿òµÄÄê·İÏòÇ°¼õÒ»
-			}
-			if(recordYear==-1){
-				yearbox.setSelectedIndex(yearbox.getItemCount()-1);
-			}
-		}
-		if(e.getSource()==b2){
-			//record++;
-			recordYear++;
-			//System.out.println(record);
-			if(recordYear<yearbox.getItemCount()){
-				yearbox.setSelectedIndex(recordYear);//Í¨¹ırecordYear¼ÓÒ»£¬ÈÃÄê·İ¿òµÄÄê·İÍùºó¼ÓÒ»
-			}			
-			//System.out.println(monthbox.getItemCount());
-			if(recordYear>=(yearbox.getItemCount())){
-				yearbox.setSelectedIndex(0);//ÒòÎªÑ¡ÏîÏÂ±êÖØĞÂÉèÖÃÎª0£¬ËùÒÔrecordÒ²ÖØĞÂ±»ÉèÖÃÎª0
-			}
-		}
-		if(e.getSource()==b3){
-			recordMonth--;			
-			if(recordMonth>=0){
-				monthbox.setSelectedIndex(recordMonth);
-			}
-			if(recordMonth==-1){
-				monthbox.setSelectedIndex(monthbox.getItemCount()-1);
-				yearbox.setSelectedIndex(recordYear-1);
-				CalclulateDate();
-			}
-		}
-		if(e.getSource()==b4){
-			//record++;
-			recordMonth++;
-			//System.out.println(record);
-			if(recordMonth<monthbox.getItemCount()){
-				monthbox.setSelectedIndex(recordMonth);
-			}			
-			//System.out.println(monthbox.getItemCount());
-			if(recordMonth>=(monthbox.getItemCount())){
-				monthbox.setSelectedIndex(0);
-				yearbox.setSelectedIndex(recordYear+1);
-				CalclulateDate();
-			}
-		}
-		if(e.getSource()==thisdayButton){
-			for(int i=0;i<daysButton.length;i++){//Çå¿ÕÊı×é
-				daysButton[i].setText("");
-			}
+    private SimpleDateFormat currentDate = new SimpleDateFormat("yyyyå¹´MMæœˆddæ—¥");
+    public CalenderNoteFrame(){
+        jf=new JFrame("æ—¥å†è®°äº‹æœ¬");
+        c=jf.getContentPane();
+        c.setLayout(new BorderLayout());
+        jf.setSize(700, 700);
+        jf.setVisible(true);
+        jf.setDefaultCloseOperation(jf.EXIT_ON_CLOSE);
+        /**
+         * åˆ¶ä½œå‡ºæ—¥å†è¡¨
+         */
+        leftpanel=new JPanel(new BorderLayout());
+        leftCenter=new JPanel();
+        leftCenter.setLayout(new GridLayout(7, 7));
 
-			Calendar ccc=Calendar.getInstance();
-			for(int i=0;i<years.length;i++){//²éÕÒ³öµ±Ç°Äê·İ¶ÔÓ¦µÄÊı×éÏÂ±ê
-				String temp=String.valueOf(ccc.get(Calendar.YEAR));
-				if(years[i].equals(temp)){
-					yearbox.setSelectedIndex(i);
-				}
-			}			
-			ccc.set(ccc.get(Calendar.YEAR), ccc.get(Calendar.MONTH), 1);
-			monthbox.setSelectedIndex(ccc.get(Calendar.MONTH));//½«ÔÂ·İ¿òÉèÖÃÎªµ±Ç°ÈÕÆÚµÄÔÂ·İ
-			/*int a=ccc.get(Calendar.DAY_OF_WEEK)-1;
-			for(int i=1;i<=calclulate(ccc.get(Calendar.YEAR), ccc.get(Calendar.MONTH)+1);i++){
-				daysButton[a++].setText(""+i+"");
-			}*/
-			CalclulateDate();
-		}
-		if(e.getSource()==notelistButoon){
-			try {
-				if(!flag){					
-					card.show(cardpanel, "left");
-					flag=true;
-					if(cancel==2){
-						listCount=0;
-						 while(model.getRowCount()>0){//°Ñ±í¸ñ½øĞĞË¢ĞÂ£¬ÏÂ´ÎÏÔÊ¾µÄÊ±ºòÖØÍ·¿ªÊ¼ÏÔÊ¾
-							 System.out.println(model.getRowCount());
-						      model.removeRow(model.getRowCount()-1);
-						 }
-					}
-				}else if(flag){
-					card.show(cardpanel, "js");
-					flag=false;
-					String note,noteTime;
-					File file=new File("D://newfile//note");
-					File[] notelist=file.listFiles();
-					for(int i=0;i<notelist.length;i++){
-						if(notelist[i].isFile()){
-							listCount++;
-							noteTime=notelist[i].getName();
-							FileReader fr=new FileReader(notelist[i]);
-							char ch[]=new char[(int)notelist[i].length()];
-							fr.read(ch);
-							note=String.valueOf(ch);
-							String row[]={String.valueOf(listCount),noteTime,note};
-							model.addRow(row);
-							fr.close();
-						}
-					}
-					cancel=2;//±í¸ñË¢ĞÂµÄ±êÖ¾
-				}
-			} catch (Exception e2) {
-				e2.printStackTrace();
-				// TODO: handle exception
-			}
-		}
-		if(e.getSource()==saveButton){
-			try {
-				String str=dateLabel.getText();//½«Òª±£´æµÄÄêÔÂÈÕ×÷ÎªÎÄ¼şÃû
-				File file=new File("D://newfile//note",str);//´´½¨³öÒÔstrÎªÎÄ¼şÃûµÄÎÄ±¾
-				//FileOutputStream fo=new FileOutputStream(file);				
-				FileWriter fw=new FileWriter(file,true);//°ÑÎÄ±¾ÓòÖĞµÄÎÄ±¾±£´æµ½ÎÄ¼şÖĞ
-				String ss=noteja.getText();
-				fw.write(ss);
-				//fo.close();
-				fw.close();
-				JOptionPane.showMessageDialog(this, "±£´æ³É¹¦£¡","ÌáÊ¾¿ò",JOptionPane.WARNING_MESSAGE);
-				noteja.setText("");
-			} catch (Exception e2) {
-				e2.printStackTrace();
-				// TODO: handle exception
-			}
-		}
-		if(e.getSource()==deleteButton){
-			try {
-				String str=dateLabel.getText();
-				File file=new File("D://newfile//note//"+str);
-				if(file.exists()){
-					int r=JOptionPane.showInternalConfirmDialog(c, "È·ÈÏÉ¾³ıÂğ£¿","ÌáÊ¾¿ò",JOptionPane.YES_NO_OPTION);
-					if(r==0){
-						file.delete();
-						noteja.setText("");
-					}					
-				}else if(!file.exists()){
-					JOptionPane.showMessageDialog(this, "ÕâÒ»ÌìÃ»ÓĞ¼ÇÊÂ","ÌáÊ¾¿ò",JOptionPane.WARNING_MESSAGE);
-				}
-			} catch (Exception e2) {
-				// TODO: handle exception
-				e2.printStackTrace();
-			}
-		}
-	}
-	
-	
-	public void CalclulateDate(){
-		for(int i=0;i<daysButton.length;i++){
-			daysButton[i].setText("");
-		}
-		year=(String)yearbox.getSelectedItem();//»ñµÃµã»÷µÄÄê·İ
-		month=(String)monthbox.getSelectedItem();//»ñµÃµã»÷µÄÔÂ·İ
-		Calendar ca=Calendar.getInstance();
-		//int q=ca.get(Calendar.DAY_OF_MONTH);
-		ca.set(Integer.parseInt(year),Integer.parseInt(month)-1, 1);
-		int day=ca.get(Calendar.DAY_OF_WEEK)-1;//¼õÒ»ÊÇÒòÎª´ÓĞÇÆÚÌì¿ªÊ¼Ëã£¬ĞÇÆÚÌì=1
-		for(int i=1;i<=calclulate(Integer.parseInt(year),Integer.parseInt(month));i++){
-			daysButton[day].setText(""+i+"");
-			daysButton[day].addMouseListener(new MyAdapter(daysButton[day]));
-			daysButton[day].addActionListener(new setlabel(daysButton[day],day));
-			/*if(i==q){
-				daysButton[day].setBackground(Color.BLUE);
-				
-			}*///±ê¼Ç³öµ±Ç°ÈÕÆÚ
-			day++;
-		}
-		recordMonth=monthbox.getSelectedIndex();//¼ÇÂ¼µ±Ç°Äê·İ¿òÖµµÄË÷Òı
-		recordYear=yearbox.getSelectedIndex();//¼ÇÂ¼µ±Ç°ÔÂ·İ¿òÖµµÄË÷Òı
-		//System.out.println("ÔÂ·İ¿òµÄÊı£º"+recordMonth);
-	}
+        /**
+         * æ·»åŠ æ˜ŸæœŸæŒ‰é’®æ•°ç»„å’Œå¤©æ•°æŒ‰é’®æ•°ç»„
+         */
+        String[] week={"æ˜ŸæœŸæ—¥","æ˜ŸæœŸä¸€","æ˜ŸæœŸäºŒ","æ˜ŸæœŸä¸‰","æ˜ŸæœŸå››","æ˜ŸæœŸäº”","æ˜ŸæœŸå…­"};
+        Font font=new Font("å®‹ä½“",Font.BOLD, 15);
+        for(int i=0;i<week.length;i++){
+            weekButton[i]=new JButton(week[i]);
+            weekButton[i].setFont(font);
+            weekButton[i].setEnabled(false);
+            leftCenter.add(weekButton[i]);
+        }
+        for( int i=0;i<42;i++){
+            daysButton[i]=new JButton("");
+            leftCenter.add(daysButton[i]);
+        }
 
-	public static void main(String[] args) {
-		// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-		new CalenderNoteFrame();
-	}
-	 class MyAdapter extends MouseAdapter{//Ê¹ÓÃÊó±êÊÂ¼şÊÊÅäÆ÷£¬¼õÉÙ´úÂëÁ¿
-		 JButton button=new JButton();
-		 public MyAdapter(JButton b){
-			 this.button=b;
-		 }
-		 public void mouseEntered(MouseEvent e){
-			 button.setBackground(Color.RED);
-		 }
-		 public void mouseExited(MouseEvent e){
-			 button.setBackground(null);
-		 }
-	 }
-	 class setlabel implements ActionListener{//µã»÷°´Å¥Ê±£¬datelabel»ñµÃÏàÓ¦µÄÄêÔÂÈÕĞÇÆÚ
-		 private JButton button;
-		 private int day;
-		 public  setlabel(JButton button,int day) {
-			// TODO ×Ô¶¯Éú³ÉµÄ¹¹Ôìº¯Êı´æ¸ù
-			 this.button=button;
-			 this.day=day;
-		}
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-			String week=null;
-			switch (day%7) {
-			case 0:
-				week="ĞÇÆÚÌì";
-			case 1:
-				week="ĞÇÆÚÒ»";
-				break;
-			case 2:
-				week="ĞÇÆÚ¶ş";
-				break;
-			case 3:
-				week="ĞÇÆÚÈı";
-				break;
-			case 4:
-				week="ĞÇÆÚËÄ";
-				break;
-			case 5:
-				week="ĞÇÆÚÎå";
-				break;
-			case 6:
-				week="ĞÇÆÚÁù";
-				break;
-			}
-			year=(String)yearbox.getSelectedItem();//»ñµÃµã»÷µÄÄê·İ
-			month=(String)monthbox.getSelectedItem();//»ñµÃµã»÷µÄÔÂ·İ
-			dateLabel.setText(year+"Äê"+month+"ÔÂ"+button.getText()+"ÈÕ"
-					+week);
-		}
-		}
+
+
+        /**
+         * åˆ¶ä½œè®°äº‹è¡¨æ ¼
+         */
+        String[] col={"ID","æ—¥æœŸ","è®°äº‹"};
+        model=new DefaultTableModel(col, 0);
+        table=new JTable(model);
+        table.setRowSorter(new TableRowSorter<>(model));
+        JScrollPane js=new JScrollPane(table);
+        /**
+         * ä½¿ç”¨å¡ç‰‡å¸ƒå±€ï¼Œä½¿å¾—ä¸åŒé¢æ¿å¯ä»¥è¿›è¡Œæ¥å›åˆ‡æ¢
+         */
+        card=new CardLayout();
+        cardpanel=new JPanel(card);
+        cardpanel.add(leftCenter,"left");
+        cardpanel.add(js,"js");
+        leftpanel.add(cardpanel, BorderLayout.CENTER);//å°†å¡ç‰‡å¸ƒå±€å™¨æ·»åŠ åˆ°å®¹å™¨ä¸­
+        /**
+         * æ·»åŠ ç»„ä»¶
+         */
+        yearbox=new JComboBox<>(years);
+        yearbox.setEditable(false);
+        yearbox.addActionListener(e -> CalclulateDate());
+        monthbox=new JComboBox<>(months);
+        monthbox.setEditable(false);
+        monthbox.addActionListener(e -> CalclulateDate());
+        /**
+         * ä½¿å¾—ç¨‹åºä¸€å¼€å§‹å°±å¤„äºå½“å‰æ—¥æœŸçš„ä½ç½®
+         */
+        Calendar cc=Calendar.getInstance();
+        cc.set(cc.get(Calendar.YEAR), cc.get(Calendar.MONTH), 1);
+        int a=cc.get(Calendar.DAY_OF_WEEK)-1;
+        for(int i=1;i<=calclulate(cc.get(Calendar.YEAR), cc.get(Calendar.MONTH)+1);i++){
+            daysButton[a].setText(""+i+"");
+            a++;
+        }
+        for(int i=0;i<years.length;i++){//æŸ¥æ‰¾å‡ºå½“å‰å¹´ä»½å¯¹åº”çš„æ•°ç»„ä¸‹æ ‡
+            String temp=String.valueOf(cc.get(Calendar.YEAR));
+            if(years[i].equals(temp)){
+                yearbox.setSelectedIndex(i);
+            }
+        }
+        monthbox.setSelectedIndex(cc.get(Calendar.MONTH));
+//        å¹´ä»½å‡ä¸€æŒ‰é’®
+        downYear=new JButton("<");
+        downYear.addActionListener(this);
+//        å¹´ä»½åŠ ä¸€æŒ‰é’®
+        upYear=new JButton(">");
+        upYear.addActionListener(this);
+//        æœˆä»½å‡ä¸€æŒ‰é’®
+        downMonth=new JButton("<");
+        downMonth.addActionListener(this);
+//        æœˆä»½åŠ ä¸€æŒ‰é’®
+        upMonth=new JButton(">");
+        upMonth.addActionListener(this);
+        thisdayButton=new JButton("å½“å‰æ—¥æœŸ");
+        thisdayButton.addActionListener(this);
+        notelistButoon=new JButton("è®°äº‹åˆ—è¡¨");
+        notelistButoon.addActionListener(this);
+//        æ—¥æœŸé€‰æ‹©é¢æ¿
+        JPanel DateSelectPanel=new JPanel(new FlowLayout());
+        DateSelectPanel.add(downYear);DateSelectPanel.add(yearbox);DateSelectPanel.add(upYear);
+        DateSelectPanel.add(downMonth);DateSelectPanel.add(monthbox);DateSelectPanel.add(upMonth);
+        DateSelectPanel.add(thisdayButton);DateSelectPanel.add(notelistButoon);
+        leftpanel.add(DateSelectPanel, BorderLayout.NORTH);
+        c.add(leftpanel,BorderLayout.WEST);
+        timeLabel=new JLabel();
+        Font font2=new Font("é»‘ä½“", Font.BOLD, 16);
+        timeLabel.setFont(font2);
+        Timer time=new Timer();
+        TimerTask task=new TimerTask() {//è®¾ç½®å®šæ—¶å™¨ï¼Œåœ¨ç•Œé¢ä¸­æ˜¾ç¤ºæ—¶é—´
+            @Override
+            public void run() {
+                // TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
+                long timemillis = System.currentTimeMillis();
+                //è½¬æ¢æ—¥æœŸæ˜¾ç¤ºæ ¼å¼   
+                SimpleDateFormat df = new SimpleDateFormat("yyyyå¹´MMæœˆddæ—¥      HH:mm:ss  E");
+                timeLabel.setText("            å½“å‰æ—¶é—´ï¼š    "+df.format(new Date(timemillis)));
+            }
+        };
+        time.schedule(task, 1000,1000);//æ¯è¿‡ä¸€ç§’æ‰§è¡Œä¸€æ¬¡
+        rightpanel=new JPanel(new BorderLayout());
+        rightpanel.add(timeLabel,BorderLayout.NORTH);
+        JPanel rightCenter=new JPanel(new BorderLayout());
+//        è®°äº‹æ—¥æœŸ
+        dateLabel=new JLabel(" ",JLabel.CENTER);
+
+        dateLabel.setFont(font2);
+        dateLabel.setText(currentDate.format(new Date()));
+//      è®°äº‹æ–‡æœ¬åŸŸ
+        noteTextArea=new JTextArea(100, 100);
+        noteTextArea.setLineWrap(true);//è‡ªåŠ¨æ¢è¡Œ
+        noteTextArea.setWrapStyleWord(true);//æ¢è¡Œä¸æ¢å­—
+        noteTextArea.setFont(new Font("é»‘ä½“",Font.BOLD,24));//è®¾ç½®å­—ä½“
+        saveButton=new JButton("ä¿å­˜");
+        saveButton.addActionListener(this);
+        deleteButton=new JButton("åˆ é™¤");
+        deleteButton.addActionListener(this);
+        JPanel buttonpanel=new JPanel(new FlowLayout());
+        buttonpanel.add(saveButton);buttonpanel.add(deleteButton);
+        rightCenter.add(noteTextArea, BorderLayout.CENTER);
+        rightCenter.add(dateLabel, BorderLayout.NORTH);
+        rightpanel.add(rightCenter, BorderLayout.CENTER);
+        rightpanel.add(buttonpanel, BorderLayout.SOUTH);
+        c.add(rightpanel);
+    }
+    public int calclulate(int year,int month){//è®¡ç®—æœˆä»½çš„å¤©æ•°
+        int day;
+        if(((year%4==0&&year%100!=0)||year%400==0) && month==2){//é—°å¹´äºŒæœˆ29å¤©
+            day=29;
+            return day;
+        }
+        if(month==1||month==3||month==5||month==5||month==7||month==8||month==10||month==12){
+            day=31;
+        }else{
+            day = month==2 ? 28 : 30;
+        }
+        return day;
+    }
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource()==downYear){
+            recordYear--;
+            if(recordYear>=0){
+                yearbox.setSelectedIndex(recordYear);//é€šè¿‡recordYearå‡ä¸€ï¼Œè®©å¹´ä»½æ¡†çš„å¹´ä»½å‘å‰å‡ä¸€
+            }
+            if(recordYear==-1){
+                yearbox.setSelectedIndex(yearbox.getItemCount()-1);
+            }
+        }
+        if(e.getSource()==upYear){
+            recordYear++;
+            if(recordYear<yearbox.getItemCount()){
+                yearbox.setSelectedIndex(recordYear);//é€šè¿‡recordYearåŠ ä¸€ï¼Œè®©å¹´ä»½æ¡†çš„å¹´ä»½å¾€ååŠ ä¸€
+            }
+            if(recordYear>=(yearbox.getItemCount())){
+                yearbox.setSelectedIndex(0);//å› ä¸ºé€‰é¡¹ä¸‹æ ‡é‡æ–°è®¾ç½®ä¸º0ï¼Œæ‰€ä»¥recordä¹Ÿé‡æ–°è¢«è®¾ç½®ä¸º0
+            }
+        }
+        if(e.getSource()==downMonth){
+            recordMonth--;
+            if(recordMonth>=0){
+                monthbox.setSelectedIndex(recordMonth);
+            }
+            if(recordMonth==-1){
+                monthbox.setSelectedIndex(monthbox.getItemCount()-1);
+                yearbox.setSelectedIndex(recordYear-1);
+                CalclulateDate();
+            }
+        }
+        if(e.getSource()==upMonth){
+            recordMonth++;
+            if(recordMonth<monthbox.getItemCount()){
+                monthbox.setSelectedIndex(recordMonth);
+            }if(recordMonth>=(monthbox.getItemCount())){
+                monthbox.setSelectedIndex(0);
+                yearbox.setSelectedIndex(recordYear+1);
+                CalclulateDate();
+            }
+        }
+        if(e.getSource()==thisdayButton){
+            dateLabel.setText(currentDate.format(new Date()));//è®¾ç½®ä¸ºå½“å‰æ—¥æœŸ
+            for(int i=0;i<daysButton.length;i++){//æ¸…ç©ºæ•°ç»„
+                daysButton[i].setText("");
+            }
+            Calendar calendar=Calendar.getInstance();
+            for(int i=0;i<years.length;i++){//æŸ¥æ‰¾å‡ºå½“å‰å¹´ä»½å¯¹åº”çš„æ•°ç»„ä¸‹æ ‡
+                String temp=String.valueOf(calendar.get(Calendar.YEAR));
+                if(years[i].equals(temp)){
+                    yearbox.setSelectedIndex(i);
+                }
+            }
+            calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1);
+            monthbox.setSelectedIndex(calendar.get(Calendar.MONTH));//å°†æœˆä»½æ¡†è®¾ç½®ä¸ºå½“å‰æ—¥æœŸçš„æœˆä»½
+            CalclulateDate();
+        }
+        if(e.getSource()==notelistButoon){
+            try {
+                if(!flag){
+                    card.show(cardpanel, "left");
+                    flag=true;
+                    if(cancel==2){
+                        listCount=0;
+                        while(model.getRowCount()>0){//æŠŠè¡¨æ ¼è¿›è¡Œåˆ·æ–°ï¼Œä¸‹æ¬¡æ˜¾ç¤ºçš„æ—¶å€™é‡å¤´å¼€å§‹æ˜¾ç¤º
+                            System.out.println(model.getRowCount());
+                            model.removeRow(model.getRowCount()-1);
+                        }
+                    }
+                }else if(flag){
+                    card.show(cardpanel, "js");
+                    flag=false;
+                    String note,noteTime;
+                    File file=new File("D://newfile//note");
+                    File[] notelist=file.listFiles();
+                    for(int i=0;i<notelist.length;i++){
+                        if(notelist[i].isFile()){
+                            listCount++;
+                            noteTime=notelist[i].getName();
+                            FileReader fr=new FileReader(notelist[i]);
+                            char ch[]=new char[(int)notelist[i].length()];
+                            fr.read(ch);
+                            note=String.valueOf(ch);
+                            String row[]={String.valueOf(listCount),noteTime,note};
+                            model.addRow(row);
+                            fr.close();
+                        }
+                    }
+                    cancel=2;//è¡¨æ ¼åˆ·æ–°çš„æ ‡å¿—
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        if(e.getSource()==saveButton){
+            try {
+                String str=dateLabel.getText()+ "-"+UUID.randomUUID().toString().substring(0,8);//å°†è¦ä¿å­˜çš„å¹´æœˆæ—¥ä½œä¸ºæ–‡ä»¶å
+                if(str.trim().length() == 0){//å¦‚æœæ²¡ç‚¹å‡»æŒ‰é’®ç›´æ¥ä¿å­˜è®°äº‹ï¼Œåˆ™æ–‡ä»¶åé»˜è®¤ä¸ºå½“å‰æ—¥æœŸ
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyå¹´MMæœˆddæ—¥");
+                    str = dateFormat.format(new Date());
+                }
+                File file=new  File("D://newfile//note//"+str+".txt");//åˆ›å»ºå‡ºä»¥strä¸ºæ–‡ä»¶åçš„æ–‡æœ¬
+                if(!file.getParentFile().exists()){
+                    file.getParentFile().mkdirs();
+                }
+                file.createNewFile();
+                //FileOutputStream fo=new FileOutputStream(file);
+                FileWriter fw=new FileWriter(file,true);//æŠŠæ–‡æœ¬åŸŸä¸­çš„æ–‡æœ¬ä¿å­˜åˆ°æ–‡ä»¶ä¸­
+                String ss=noteTextArea.getText();
+                fw.write(ss);
+                //fo.close();
+                fw.close();
+                JOptionPane.showMessageDialog(this, "ä¿å­˜æˆåŠŸï¼","æç¤ºæ¡†",JOptionPane.WARNING_MESSAGE);
+                noteTextArea.setText("");
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+        if(e.getSource()==deleteButton){
+            try {
+                String str=dateLabel.getText();
+                File file=new File("D://newfile//note//"+str);
+                if(file.exists()){
+                    int r=JOptionPane.showInternalConfirmDialog(c, "ç¡®è®¤åˆ é™¤å—ï¼Ÿ","æç¤ºæ¡†",JOptionPane.YES_NO_OPTION);
+                    if(r==0){
+                        file.delete();
+                        noteTextArea.setText("");
+                    }
+                }else if(!file.exists()){
+                    JOptionPane.showMessageDialog(this, "è¿™ä¸€å¤©æ²¡æœ‰è®°äº‹","æç¤ºæ¡†",JOptionPane.WARNING_MESSAGE);
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+    }
+
+
+    public void CalclulateDate(){
+        for(int i=0;i<daysButton.length;i++){//       åˆå§‹æ—¶æ¸…ç©ºæ‰€æœ‰æŒ‰é’®çš„æ•°å­—ï¼Œä»¥åŠè®¾ç½®ä¸ºä¸å¯é€‰
+            daysButton[i].setBackground(null);
+            daysButton[i].setText("");
+            daysButton[i].setEnabled(false);
+        }
+        year=(String)yearbox.getSelectedItem();//è·å¾—ç‚¹å‡»çš„å¹´ä»½
+        month=(String)monthbox.getSelectedItem();//è·å¾—ç‚¹å‡»çš„æœˆä»½
+        Calendar ca=Calendar.getInstance();
+        //int q=ca.get(Calendar.DAY_OF_MONTH);
+        ca.set(Integer.parseInt(year),Integer.parseInt(month)-1, 1);
+        int day=ca.get(Calendar.DAY_OF_WEEK)-1;//å‡ä¸€æ˜¯å› ä¸ºä»æ˜ŸæœŸå¤©å¼€å§‹ç®—ï¼Œæ˜ŸæœŸå¤©=1
+        for(int i=1;i<=calclulate(Integer.parseInt(year),Integer.parseInt(month));i++){
+            daysButton[day].setText(""+i+"");
+//          å°†æŒ‰é’®è®¾ç½®ä¸ºå¯é€‰
+            daysButton[day].setEnabled(true);
+            daysButton[day].addMouseListener(new MyAdapter(daysButton[day]));
+            daysButton[day].addActionListener(new setlabel(daysButton[day],day));
+            day++;
+        }
+        recordMonth=monthbox.getSelectedIndex();//è®°å½•å½“å‰å¹´ä»½æ¡†å€¼çš„ç´¢å¼•
+        recordYear=yearbox.getSelectedIndex();//è®°å½•å½“å‰æœˆä»½æ¡†å€¼çš„ç´¢å¼•
+    }
+
+    public static void main(String[] args) {
+        // TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
+        new CalenderNoteFrame();
+    }
+    class MyAdapter extends MouseAdapter{//ä½¿ç”¨é¼ æ ‡äº‹ä»¶é€‚é…å™¨ï¼Œå‡å°‘ä»£ç é‡
+        JButton button;
+        public MyAdapter(JButton b){
+            this.button=b;
+        }
+        public void mouseEntered(MouseEvent e){
+//            é¼ æ ‡ç»è¿‡æ—¶æ˜¾ç¤ºä¸ºçº¢è‰²
+            if(button.getText().length() > 0){
+                button.setBackground(Color.RED);
+            }
+        }
+        public void mouseExited(MouseEvent e){
+            button.setBackground(null);
+        }
+    }
+    class setlabel implements ActionListener{//ç‚¹å‡»æŒ‰é’®æ—¶ï¼Œdatelabelè·å¾—ç›¸åº”çš„å¹´æœˆæ—¥æ˜ŸæœŸ
+        private JButton button;
+        private int day;
+        public  setlabel(JButton button,int day) {
+            // TODO è‡ªåŠ¨ç”Ÿæˆçš„æ„é€ å‡½æ•°å­˜æ ¹
+            this.button=button;
+            this.day=day;
+        }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // TODO è‡ªåŠ¨ç”Ÿæˆçš„æ–¹æ³•å­˜æ ¹
+            String week=null;
+            switch (day%7) {
+                case 0:
+                    week="æ˜ŸæœŸå¤©";
+                    break;
+                case 1:
+                    week="æ˜ŸæœŸä¸€";
+                    break;
+                case 2:
+                    week="æ˜ŸæœŸäºŒ";
+                    break;
+                case 3:
+                    week="æ˜ŸæœŸä¸‰";
+                    break;
+                case 4:
+                    week="æ˜ŸæœŸå››";
+                    break;
+                case 5:
+                    week="æ˜ŸæœŸäº”";
+                    break;
+                case 6:
+                    week="æ˜ŸæœŸå…­";
+                    break;
+            }
+            year=(String)yearbox.getSelectedItem();//è·å¾—ç‚¹å‡»çš„å¹´ä»½
+            month=(String)monthbox.getSelectedItem();//è·å¾—ç‚¹å‡»çš„æœˆä»½
+            dateLabel.setText(year+"å¹´"+month+"æœˆ"+button.getText()+"æ—¥");
+        }
+    }
 }
-
